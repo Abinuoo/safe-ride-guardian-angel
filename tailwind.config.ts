@@ -26,7 +26,16 @@ export default {
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					foreground: 'hsl(var(--primary-foreground))',
+					hover: 'hsl(var(--primary-hover))'
+				},
+				safety: {
+					DEFAULT: 'hsl(var(--safety))',
+					foreground: 'hsl(var(--safety-foreground))'
+				},
+				success: {
+					DEFAULT: 'hsl(var(--success))',
+					foreground: 'hsl(var(--success-foreground))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
@@ -62,6 +71,16 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				}
+			},
+			backgroundImage: {
+				'gradient-primary': 'var(--gradient-primary)',
+				'gradient-hero': 'var(--gradient-hero)',
+				'gradient-safety': 'var(--gradient-safety)'
+			},
+			boxShadow: {
+				'primary': 'var(--shadow-primary)',
+				'safety': 'var(--shadow-safety)',
+				'elegant': 'var(--shadow-elegant)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
