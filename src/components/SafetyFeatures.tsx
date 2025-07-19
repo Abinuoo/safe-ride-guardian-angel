@@ -13,6 +13,10 @@ import {
 } from "lucide-react"
 import safetyDashboard from "@/assets/safety-dashboard.jpg"
 import DriverSelection from "./DriverSelection"
+import VoiceRecorder from "./VoiceRecorder"
+import LiveTracking from "./LiveTracking"
+import WomenDrivers from "./WomenDrivers"
+import SafetyChatbot from "./SafetyChatbot"
 
 const SafetyFeatures = () => {
   const features = [
@@ -141,6 +145,30 @@ const SafetyFeatures = () => {
                       Learn more →
                     </Button>
                   </DriverSelection>
+                ) : feature.title === "Blackbox Driver Monitoring" ? (
+                  <VoiceRecorder>
+                    <Button variant="ghost" size="sm" className="mt-4 p-0 h-auto text-primary hover:text-primary-hover">
+                      Learn more →
+                    </Button>
+                  </VoiceRecorder>
+                ) : feature.title === "Guardian Angel Real-Time Safety" ? (
+                  <LiveTracking>
+                    <Button variant="ghost" size="sm" className="mt-4 p-0 h-auto text-primary hover:text-primary-hover">
+                      Learn more →
+                    </Button>
+                  </LiveTracking>
+                ) : feature.title === "Women-Only Ride Option" ? (
+                  <WomenDrivers>
+                    <Button variant="ghost" size="sm" className="mt-4 p-0 h-auto text-primary hover:text-primary-hover">
+                      Learn more →
+                    </Button>
+                  </WomenDrivers>
+                ) : feature.title === "Safety Assistant Chatbot" ? (
+                  <SafetyChatbot>
+                    <Button variant="ghost" size="sm" className="mt-4 p-0 h-auto text-primary hover:text-primary-hover">
+                      Learn more →
+                    </Button>
+                  </SafetyChatbot>
                 ) : (
                   <Button variant="ghost" size="sm" className="mt-4 p-0 h-auto text-primary hover:text-primary-hover">
                     Learn more →
