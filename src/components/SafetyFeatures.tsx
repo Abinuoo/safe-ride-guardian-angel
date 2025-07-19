@@ -12,6 +12,7 @@ import {
   Clock
 } from "lucide-react"
 import safetyDashboard from "@/assets/safety-dashboard.jpg"
+import DriverSelection from "./DriverSelection"
 
 const SafetyFeatures = () => {
   const features = [
@@ -134,9 +135,17 @@ const SafetyFeatures = () => {
                 <CardDescription className="text-muted-foreground text-base leading-relaxed">
                   {feature.description}
                 </CardDescription>
-                <Button variant="ghost" size="sm" className="mt-4 p-0 h-auto text-primary hover:text-primary-hover">
-                  Learn more →
-                </Button>
+                {feature.title === "Know Your Ride" ? (
+                  <DriverSelection>
+                    <Button variant="ghost" size="sm" className="mt-4 p-0 h-auto text-primary hover:text-primary-hover">
+                      Learn more →
+                    </Button>
+                  </DriverSelection>
+                ) : (
+                  <Button variant="ghost" size="sm" className="mt-4 p-0 h-auto text-primary hover:text-primary-hover">
+                    Learn more →
+                  </Button>
+                )}
               </CardContent>
             </Card>
           ))}
