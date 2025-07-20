@@ -1,7 +1,9 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/enhanced-button"
 import { Card } from "@/components/ui/card"
-import { MapPin, Clock, Users, Shield, Star, Heart, Accessibility } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { MapPin, Clock, Users, Shield, Star, Heart, Accessibility, Navigation, Phone, MessageCircle } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 import heroImage from "@/assets/hero-transportation.jpg"
 import LocationInput from "./LocationInput"
 import RideOptionModal from "./RideOptionModal"
@@ -9,6 +11,7 @@ import LiveDemo from "./LiveDemo"
 import EmergencySOS from "./EmergencySOS"
 import WomenOnlyBooking from "./WomenOnlyBooking"
 import AccessibleRideBooking from "./AccessibleRideBooking"
+import DriverSelection from "./DriverSelection"
 
 const Hero = () => {
   const [pickupLocation, setPickupLocation] = useState("")
@@ -19,6 +22,54 @@ const Hero = () => {
   const [showEmergencySOS, setShowEmergencySOS] = useState(false)
   const [showWomenBooking, setShowWomenBooking] = useState(false)
   const [showAccessibleBooking, setShowAccessibleBooking] = useState(false)
+  const [showDriverSelection, setShowDriverSelection] = useState(false)
+  const [isBooking, setIsBooking] = useState(false)
+  const [estimatedPrice, setEstimatedPrice] = useState("")
+  const [estimatedTime, setEstimatedTime] = useState("")
+  const [rideBooked, setRideBooked] = useState(false)
+  
+  const { toast } = useToast()
+
+  // Calculate estimated price and time based on locations
+  useEffect(() => {
+    if (pickupLocation && destination) {
+      // Simulate price and time calculation
+      const basePrice = 10
+      const distance = Math.random() * 20 + 5 // 5-25 km
+      const price = (basePrice + distance * 0.8).toFixed(2)
+      const time = Math.floor(distance * 2 + 5) // estimate in minutes
+      
+      setEstimatedPrice(`$${price}`)
+      setEstimatedTime(`${time} min`)
+    } else {
+      setEstimatedPrice("")
+      setEstimatedTime("")
+    }
+  }, [pickupLocation, destination])
+
+  const handleBookRide = async () => {
+    if (!pickupLocation || !destination) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter both pickup and destination locations.",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setIsBooking(true)
+    
+    // Simulate booking process
+    setTimeout(() => {
+      setIsBooking(false)
+      setRideBooked(true)
+      setShowDriverSelection(true)
+      toast({
+        title: "Ride Booked Successfully!",
+        description: "Looking for the best driver for you...",
+      })
+    }, 2000)
+  }
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -169,13 +220,37 @@ const Hero = () => {
                     </Button>
                   </div>
 
+                  {/* Price and Time Estimate */}
+                  {estimatedPrice && estimatedTime && (
+                    <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+                      <div className="text-sm">
+                        <span className="text-muted-foreground">Estimated:</span>
+                        <div className="font-medium text-foreground">{estimatedPrice}</div>
+                      </div>
+                      <div className="text-sm text-right">
+                        <span className="text-muted-foreground">ETA:</span>
+                        <div className="font-medium text-foreground">{estimatedTime}</div>
+                      </div>
+                    </div>
+                  )}
+
                   <Button 
                     variant="hero" 
                     size="lg" 
                     className="w-full"
-                    disabled={!pickupLocation || !destination}
+                    disabled={!pickupLocation || !destination || isBooking}
+                    onClick={handleBookRide}
                   >
-                    Find Safe Ride
+                    {isBooking ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-background border-t-transparent mr-2"></div>
+                        Booking Ride...
+                      </>
+                    ) : rideBooked ? (
+                      "Ride Booked! Select Driver"
+                    ) : (
+                      "Find Safe Ride"
+                    )}
                   </Button>
                 </div>
 
@@ -214,6 +289,8 @@ const Hero = () => {
         isOpen={showAccessibleBooking}
         onClose={() => setShowAccessibleBooking(false)}
       />
+      
+      <DriverSelection isOpen={showDriverSelection} onClose={() => setShowDriverSelection(false)} />
     </section>
   )
 }

@@ -1,9 +1,11 @@
-import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { useState, useEffect } from "react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/enhanced-button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Progress } from "@/components/ui/progress"
+import { useToast } from "@/hooks/use-toast"
 import { 
   Star, 
   Clock, 
@@ -12,7 +14,11 @@ import {
   MapPin,
   ThumbsUp,
   Award,
-  CheckCircle
+  CheckCircle,
+  Phone,
+  MessageCircle,
+  Navigation,
+  Zap
 } from "lucide-react"
 
 const drivers = [
@@ -32,8 +38,11 @@ const drivers = [
       { text: "Always on time and courteous", rating: 5 }
     ],
     badges: ["Top Rated", "Safety Expert", "5K+ Rides"],
-    estimatedArrival: "3 min",
-    price: "$12.50"
+    estimatedArrival: 3,
+    price: 12.50,
+    currentLocation: "2.1 km away",
+    safetyScore: 98,
+    isOnline: true
   },
   {
     id: 2,
@@ -51,8 +60,11 @@ const drivers = [
       { text: "Clean car and punctual", rating: 4 }
     ],
     badges: ["Eco Driver", "Business Class"],
-    estimatedArrival: "5 min",
-    price: "$11.75"
+    estimatedArrival: 5,
+    price: 11.75,
+    currentLocation: "3.4 km away",
+    safetyScore: 95,
+    isOnline: true
   },
   {
     id: 3,
@@ -70,17 +82,62 @@ const drivers = [
       { text: "Affordable and reliable", rating: 4 }
     ],
     badges: ["Pet Lover", "New Driver"],
-    estimatedArrival: "7 min",
-    price: "$10.25"
+    estimatedArrival: 7,
+    price: 10.25,
+    currentLocation: "4.2 km away",
+    safetyScore: 92,
+    isOnline: true
   }
 ]
 
 interface DriverSelectionProps {
-  children: React.ReactNode
+  isOpen: boolean
+  onClose: () => void
 }
 
-const DriverSelection = ({ children }: DriverSelectionProps) => {
+const DriverSelection = ({ isOpen, onClose }: DriverSelectionProps) => {
   const [selectedDriver, setSelectedDriver] = useState<number | null>(null)
+  const [confirmingRide, setConfirmingRide] = useState(false)
+  const [rideConfirmed, setRideConfirmed] = useState(false)
+  const [arrivalProgress, setArrivalProgress] = useState(0)
+  const { toast } = useToast()
+
+  // Simulate real-time driver location updates
+  useEffect(() => {
+    if (!isOpen) return
+
+    const interval = setInterval(() => {
+      // Update estimated arrival times
+      drivers.forEach(driver => {
+        if (driver.estimatedArrival > 1) {
+          driver.estimatedArrival -= 0.1
+        }
+      })
+    }, 30000) // Update every 30 seconds
+
+    return () => clearInterval(interval)
+  }, [isOpen])
+
+  // Simulate arrival progress
+  useEffect(() => {
+    if (rideConfirmed) {
+      const interval = setInterval(() => {
+        setArrivalProgress(prev => {
+          if (prev >= 100) {
+            clearInterval(interval)
+            toast({
+              title: "Driver Arrived!",
+              description: "Your driver is waiting outside.",
+            })
+            return 100
+          }
+          return prev + 2
+        })
+      }, 1000)
+
+      return () => clearInterval(interval)
+    }
+  }, [rideConfirmed])
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
@@ -95,11 +152,85 @@ const DriverSelection = ({ children }: DriverSelectionProps) => {
     ))
   }
 
+  const handleConfirmRide = async () => {
+    if (!selectedDriver) return
+
+    setConfirmingRide(true)
+    
+    setTimeout(() => {
+      setConfirmingRide(false)
+      setRideConfirmed(true)
+      toast({
+        title: "Ride Confirmed!",
+        description: "Your driver is on the way. You'll receive live updates.",
+      })
+    }, 2000)
+  }
+
+  const selectedDriverData = drivers.find(d => d.id === selectedDriver)
+
+  if (rideConfirmed && selectedDriverData) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-2xl font-bold text-foreground">
+              Ride Confirmed!
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-6 py-6">
+            <div className="text-center">
+              <Avatar className="h-20 w-20 mx-auto mb-4">
+                <AvatarImage src={selectedDriverData.avatar} alt={selectedDriverData.name} />
+                <AvatarFallback className="bg-primary/20 text-primary text-xl font-semibold">
+                  {selectedDriverData.name.split(' ').map(n => n[0]).join('')}
+                </AvatarFallback>
+              </Avatar>
+              <h3 className="text-xl font-semibold">{selectedDriverData.name}</h3>
+              <p className="text-muted-foreground">{selectedDriverData.vehicle}</p>
+              <Badge variant="secondary" className="mt-2">{selectedDriverData.plateNumber}</Badge>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-muted-foreground">Driver Arrival</span>
+                  <span className="text-sm font-medium">{arrivalProgress}%</span>
+                </div>
+                <Progress value={arrivalProgress} className="h-2" />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <Button variant="outline" size="sm" className="flex-col h-16 p-2">
+                  <Phone className="h-4 w-4 mb-1" />
+                  <span className="text-xs">Call</span>
+                </Button>
+                <Button variant="outline" size="sm" className="flex-col h-16 p-2">
+                  <MessageCircle className="h-4 w-4 mb-1" />
+                  <span className="text-xs">Message</span>
+                </Button>
+                <Button variant="outline" size="sm" className="flex-col h-16 p-2">
+                  <Navigation className="h-4 w-4 mb-1" />
+                  <span className="text-xs">Track</span>
+                </Button>
+              </div>
+
+              <div className="bg-muted/30 p-4 rounded-lg text-center">
+                <p className="text-sm text-muted-foreground mb-1">Estimated Arrival</p>
+                <p className="text-2xl font-bold text-primary">
+                  {Math.ceil(selectedDriverData.estimatedArrival)} min
+                </p>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-foreground flex items-center">
@@ -107,7 +238,7 @@ const DriverSelection = ({ children }: DriverSelectionProps) => {
             Choose Your Driver
           </DialogTitle>
           <p className="text-muted-foreground">
-            Select from our verified drivers with detailed profiles and reviews
+            Select from our verified drivers with detailed profiles and real-time tracking
           </p>
         </DialogHeader>
 
@@ -125,12 +256,21 @@ const DriverSelection = ({ children }: DriverSelectionProps) => {
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-4">
-                    <Avatar className="h-16 w-16">
-                      <AvatarImage src={driver.avatar} alt={driver.name} />
-                      <AvatarFallback className="bg-primary/20 text-primary text-lg font-semibold">
-                        {driver.name.split(' ').map(n => n[0]).join('')}
-                      </AvatarFallback>
-                    </Avatar>
+                    <div className="relative">
+                      <Avatar className="h-16 w-16">
+                        <AvatarImage src={driver.avatar} alt={driver.name} />
+                        <AvatarFallback className="bg-primary/20 text-primary text-lg font-semibold">
+                          {driver.name.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      {driver.isOnline && (
+                        <div className="absolute -bottom-1 -right-1 bg-success rounded-full p-1">
+                          <div className="w-3 h-3 bg-background rounded-full flex items-center justify-center">
+                            <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                     
                     <div>
                       <h3 className="text-xl font-semibold text-foreground flex items-center">
@@ -153,6 +293,17 @@ const DriverSelection = ({ children }: DriverSelectionProps) => {
                         </span>
                       </div>
 
+                      <div className="flex items-center space-x-3 mt-2">
+                        <div className="flex items-center text-sm text-muted-foreground">
+                          <MapPin className="h-4 w-4 mr-1" />
+                          {driver.currentLocation}
+                        </div>
+                        <div className="flex items-center text-sm">
+                          <Shield className="h-4 w-4 mr-1 text-success" />
+                          <span className="text-foreground">{driver.safetyScore}% Safe</span>
+                        </div>
+                      </div>
+
                       <div className="flex flex-wrap gap-1 mt-2">
                         {driver.badges.map((badge, index) => (
                           <Badge key={index} variant="secondary" className="text-xs">
@@ -165,11 +316,17 @@ const DriverSelection = ({ children }: DriverSelectionProps) => {
                   </div>
 
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-primary">{driver.price}</div>
+                    <div className="text-2xl font-bold text-primary">${driver.price}</div>
                     <div className="text-sm text-muted-foreground flex items-center">
                       <Clock className="h-4 w-4 mr-1" />
-                      {driver.estimatedArrival}
+                      {Math.ceil(driver.estimatedArrival)} min
                     </div>
+                    {driver.estimatedArrival <= 3 && (
+                      <Badge variant="outline" className="mt-1 text-xs border-success text-success">
+                        <Zap className="h-3 w-3 mr-1" />
+                        Fastest
+                      </Badge>
+                    )}
                   </div>
                 </div>
               </CardHeader>
@@ -248,10 +405,24 @@ const DriverSelection = ({ children }: DriverSelectionProps) => {
           {selectedDriver && (
             <div className="flex justify-center space-x-4 pt-4 border-t">
               <Button variant="outline" size="lg">
+                <MessageCircle className="h-4 w-4 mr-2" />
                 Message Driver
               </Button>
-              <Button variant="hero" size="lg" className="bg-primary hover:bg-primary-hover">
-                Confirm Selection
+              <Button 
+                variant="hero" 
+                size="lg" 
+                className="bg-primary hover:bg-primary-hover"
+                onClick={handleConfirmRide}
+                disabled={confirmingRide}
+              >
+                {confirmingRide ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-background border-t-transparent mr-2"></div>
+                    Confirming...
+                  </>
+                ) : (
+                  "Confirm Selection"
+                )}
               </Button>
             </div>
           )}

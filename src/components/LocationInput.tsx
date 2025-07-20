@@ -70,19 +70,29 @@ const indianCities = [
 const LocationInput = ({ placeholder, value, onChange, className, icon = "pickup" }: LocationInputProps) => {
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const suggestionsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (value) {
-      const filtered = indianCities.filter(city => 
-        city.toLowerCase().includes(value.toLowerCase())
-      ).slice(0, 5)
-      setSuggestions(filtered)
-      setShowSuggestions(filtered.length > 0)
+    if (value.length > 2) {
+      setIsLoading(true)
+      
+      // Simulate API delay for realistic experience
+      const timeoutId = setTimeout(() => {
+        const filtered = indianCities.filter(city =>
+          city.toLowerCase().includes(value.toLowerCase())
+        ).slice(0, 5)
+        setSuggestions(filtered)
+        setShowSuggestions(true)
+        setIsLoading(false)
+      }, 300)
+
+      return () => clearTimeout(timeoutId)
     } else {
       setSuggestions([])
       setShowSuggestions(false)
+      setIsLoading(false)
     }
   }, [value])
 
@@ -118,22 +128,31 @@ const LocationInput = ({ placeholder, value, onChange, className, icon = "pickup
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onFocus={() => setShowSuggestions(suggestions.length > 0)}
-        className={`pl-10 h-12 ${className}`}
+        className={`pl-10 pr-10 h-12 ${className}`}
       />
+      
+      {isLoading && (
+        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+          <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent"></div>
+        </div>
+      )}
       
       {showSuggestions && suggestions.length > 0 && (
         <div 
           ref={suggestionsRef}
-          className="absolute top-full left-0 right-0 bg-background border border-border rounded-md shadow-elegant mt-1 z-50 max-h-60 overflow-y-auto"
+          className="absolute top-full left-0 right-0 bg-background border border-border rounded-md shadow-elegant mt-1 z-50 max-h-60 overflow-y-auto animate-fade-in"
         >
           {suggestions.map((suggestion, index) => (
             <div
               key={index}
-              className="px-4 py-3 hover:bg-muted cursor-pointer flex items-center space-x-3 border-b border-border/50 last:border-b-0"
+              className="px-4 py-3 hover:bg-muted cursor-pointer transition-colors duration-200 flex items-center"
               onClick={() => handleSuggestionClick(suggestion)}
             >
-              <MapPin className="h-4 w-4 text-muted-foreground" />
-              <span className="text-foreground">{suggestion}</span>
+              <MapPin className="h-4 w-4 text-muted-foreground mr-3" />
+              <div>
+                <div className="font-medium text-foreground">{suggestion}</div>
+                <div className="text-xs text-muted-foreground">India</div>
+              </div>
             </div>
           ))}
         </div>

@@ -150,11 +150,14 @@ const SafetyFeatures = () => {
                   {feature.description}
                 </CardDescription>
                 {feature.title === "Know Your Ride" ? (
-                  <DriverSelection>
-                    <Button variant="ghost" size="sm" className="mt-4 p-0 h-auto text-primary hover:text-primary-hover">
-                      Learn more →
-                    </Button>
-                  </DriverSelection>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="mt-4 p-0 h-auto text-primary hover:text-primary-hover"
+                    onClick={() => setShowLiveDemo(true)}
+                  >
+                    Learn more →
+                  </Button>
                 ) : feature.title === "Blackbox Driver Monitoring" ? (
                   <VoiceRecorder>
                     <Button variant="ghost" size="sm" className="mt-4 p-0 h-auto text-primary hover:text-primary-hover">
