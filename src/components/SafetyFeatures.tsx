@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/enhanced-button"
 import { 
@@ -17,8 +18,12 @@ import VoiceRecorder from "./VoiceRecorder"
 import LiveTracking from "./LiveTracking"
 import WomenDrivers from "./WomenDrivers"
 import SafetyChatbot from "./SafetyChatbot"
+import LiveDemo from "./LiveDemo"
+import EmergencySOS from "./EmergencySOS"
 
 const SafetyFeatures = () => {
+  const [showLiveDemo, setShowLiveDemo] = useState(false)
+  const [showEmergencySOS, setShowEmergencySOS] = useState(false)
   const features = [
     {
       icon: Eye,
@@ -109,7 +114,12 @@ const SafetyFeatures = () => {
                 </div>
               </div>
 
-              <Button variant="hero" size="lg" className="mt-6">
+              <Button 
+                variant="hero" 
+                size="lg" 
+                className="mt-6"
+                onClick={() => setShowLiveDemo(true)}
+              >
                 View Live Demo
               </Button>
             </div>
@@ -189,13 +199,29 @@ const SafetyFeatures = () => {
                   Our Smart SOS system instantly connects you with emergency services and shares your real-time location.
                 </p>
               </div>
-              <Button variant="sos" size="xl" className="bg-background/20 hover:bg-background/30 text-safety-foreground border border-background/30">
+              <Button 
+                variant="sos" 
+                size="xl" 
+                className="bg-background/20 hover:bg-background/30 text-safety-foreground border border-background/30"
+                onClick={() => setShowEmergencySOS(true)}
+              >
                 <Phone className="h-5 w-5 mr-2" />
                 Emergency SOS
               </Button>
             </div>
           </Card>
         </div>
+
+        {/* Modals */}
+        <LiveDemo
+          isOpen={showLiveDemo}
+          onClose={() => setShowLiveDemo(false)}
+        />
+        
+        <EmergencySOS
+          isOpen={showEmergencySOS}
+          onClose={() => setShowEmergencySOS(false)}
+        />
       </div>
     </section>
   )

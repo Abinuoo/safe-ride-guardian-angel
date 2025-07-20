@@ -1,13 +1,24 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/enhanced-button"
 import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { MapPin, Clock, Users, Shield, Star } from "lucide-react"
+import { MapPin, Clock, Users, Shield, Star, Heart, Accessibility } from "lucide-react"
 import heroImage from "@/assets/hero-transportation.jpg"
+import LocationInput from "./LocationInput"
+import RideOptionModal from "./RideOptionModal"
+import LiveDemo from "./LiveDemo"
+import EmergencySOS from "./EmergencySOS"
+import WomenOnlyBooking from "./WomenOnlyBooking"
+import AccessibleRideBooking from "./AccessibleRideBooking"
 
 const Hero = () => {
   const [pickupLocation, setPickupLocation] = useState("")
   const [destination, setDestination] = useState("")
+  const [showRideModal, setShowRideModal] = useState(false)
+  const [selectedRideType, setSelectedRideType] = useState<"standard" | "premium" | "women-only" | "accessible">("standard")
+  const [showLiveDemo, setShowLiveDemo] = useState(false)
+  const [showEmergencySOS, setShowEmergencySOS] = useState(false)
+  const [showWomenBooking, setShowWomenBooking] = useState(false)
+  const [showAccessibleBooking, setShowAccessibleBooking] = useState(false)
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -64,10 +75,23 @@ const Hero = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button variant="hero" size="xl" className="flex-1 sm:flex-none">
+              <Button 
+                variant="hero" 
+                size="xl" 
+                className="flex-1 sm:flex-none"
+                onClick={() => {
+                  setSelectedRideType("standard")
+                  setShowRideModal(true)
+                }}
+              >
                 Book Safe Ride
               </Button>
-              <Button variant="outline" size="xl" className="bg-background/10 border-background/30 text-background hover:bg-background/20">
+              <Button 
+                variant="outline" 
+                size="xl" 
+                className="bg-background/10 border-background/30 text-background hover:bg-background/20"
+                onClick={() => setShowLiveDemo(true)}
+              >
                 Learn More
               </Button>
             </div>
@@ -84,40 +108,64 @@ const Hero = () => {
 
                 <div className="space-y-4">
                   {/* Pickup Location */}
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-3 h-5 w-5 text-primary" />
-                    <Input 
-                      placeholder="Pickup location"
-                      value={pickupLocation}
-                      onChange={(e) => setPickupLocation(e.target.value)}
-                      className="pl-10 h-12"
-                    />
-                  </div>
+                  <LocationInput
+                    placeholder="Pickup location"
+                    value={pickupLocation}
+                    onChange={setPickupLocation}
+                    icon="pickup"
+                  />
 
                   {/* Destination */}
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-3 h-5 w-5 text-safety" />
-                    <Input 
-                      placeholder="Where to?"
-                      value={destination}
-                      onChange={(e) => setDestination(e.target.value)}
-                      className="pl-10 h-12"
-                    />
-                  </div>
+                  <LocationInput
+                    placeholder="Where to?"
+                    value={destination}
+                    onChange={setDestination}
+                    icon="destination"
+                  />
 
                   {/* Ride Options */}
-                  <div className="grid grid-cols-3 gap-2">
-                    <Button variant="outline" size="sm" className="flex-col h-16 p-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-col h-16 p-2"
+                      onClick={() => {
+                        setSelectedRideType("standard")
+                        setShowRideModal(true)
+                      }}
+                    >
                       <Users className="h-4 w-4 mb-1" />
                       <span className="text-xs">Standard</span>
                     </Button>
-                    <Button variant="outline" size="sm" className="flex-col h-16 p-2 border-primary text-primary">
-                      <Shield className="h-4 w-4 mb-1" />
-                      <span className="text-xs">Women-Only</span>
-                    </Button>
-                    <Button variant="outline" size="sm" className="flex-col h-16 p-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-col h-16 p-2"
+                      onClick={() => {
+                        setSelectedRideType("premium")
+                        setShowRideModal(true)
+                      }}
+                    >
                       <Star className="h-4 w-4 mb-1" />
                       <span className="text-xs">Premium</span>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-col h-16 p-2 border-safety text-safety"
+                      onClick={() => setShowWomenBooking(true)}
+                    >
+                      <Heart className="h-4 w-4 mb-1" />
+                      <span className="text-xs">Women-Only</span>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-col h-16 p-2 border-success text-success"
+                      onClick={() => setShowAccessibleBooking(true)}
+                    >
+                      <Accessibility className="h-4 w-4 mb-1" />
+                      <span className="text-xs">Accessible</span>
                     </Button>
                   </div>
 
@@ -139,6 +187,33 @@ const Hero = () => {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <RideOptionModal
+        isOpen={showRideModal}
+        onClose={() => setShowRideModal(false)}
+        rideType={selectedRideType}
+      />
+      
+      <LiveDemo
+        isOpen={showLiveDemo}
+        onClose={() => setShowLiveDemo(false)}
+      />
+      
+      <EmergencySOS
+        isOpen={showEmergencySOS}
+        onClose={() => setShowEmergencySOS(false)}
+      />
+      
+      <WomenOnlyBooking
+        isOpen={showWomenBooking}
+        onClose={() => setShowWomenBooking(false)}
+      />
+      
+      <AccessibleRideBooking
+        isOpen={showAccessibleBooking}
+        onClose={() => setShowAccessibleBooking(false)}
+      />
     </section>
   )
 }
